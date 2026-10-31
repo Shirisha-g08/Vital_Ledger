@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#245c49">
+  <meta name="description" content="Patient blood test records and consent-based educational health screening.">
+  <title>Vital Ledger | Patient Records</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script defer src="/static/lucide.min.js"></script>
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Vital Ledger home"><span class="brand-mark"><i data-lucide="heart-pulse"></i></span><span>vital<span class="brand-light">ledger</span><small>PATIENT WORKSPACE</small></span></a>
+    <div class="workspace-label">WORKSPACE</div>
+    <nav aria-label="Main navigation">
+      <button class="nav-item active" data-view="patients"><i data-lucide="users-round"></i><span>Patient records</span><span id="nav-count" class="nav-count">0</span></button>
+      <button class="nav-item" data-view="assessment"><i data-lucide="clipboard-check"></i><span>Assessment cases</span></button>
+      <a class="nav-item" href="/docs" target="_blank" rel="noopener" aria-label="API reference" title="API reference"><i data-lucide="braces"></i><span>API reference</span><i class="external" data-lucide="arrow-up-right"></i></a>
+    </nav>
+    <div class="sidebar-bottom"><span class="privacy-icon"><i data-lucide="shield-check"></i></span><strong>Local-first records</strong><p>Personal identifiers stay on this server.</p><div class="sidebar-rule"></div><span class="environment"><span class="status-dot"></span>Local development</span></div>
+  </aside>
+
+  <div class="app-shell">
+    <header class="topbar"><div class="breadcrumb"><i data-lucide="activity"></i><span>Workspace</span><span class="crumb-slash">/</span><strong id="breadcrumb-current">Patient records</strong></div><div class="topbar-right"><span id="connection-status" class="connection"><span class="status-dot"></span>Connecting</span><span class="workspace-avatar" title="Local workspace"><i data-lucide="stethoscope"></i></span></div></header>
+    <main id="main-content">
+      <section id="patients-view">
+        <div class="page-heading"><div><div class="eyebrow"><span class="status-dot"></span>CARE, IN CONTEXT</div><h1>Patient records<span class="heading-dot">.</span></h1><p class="page-subtitle" id="today-label"></p></div><button class="button primary" id="new-patient"><i data-lucide="plus"></i>Add patient</button></div>
+        <div class="metrics" aria-label="Record summary"><div class="metric"><div class="metric-label">Total records<i data-lucide="users-round"></i></div><div class="metric-value" id="total-records">0</div><span class="metric-caption">Patient blood test entries</span></div><div class="metric"><div class="metric-label">Review suggested<i data-lucide="circle-alert"></i></div><div class="metric-value amber" id="review-records">0</div><span class="metric-caption">Flagged by local screening rules</span></div><div class="metric"><div class="metric-label">AI remarks<i data-lucide="sparkles"></i></div><div class="metric-value" id="ai-records">0</div><span class="metric-caption" id="ai-caption">Checking AI connection</span></div></div>
+        <div class="records-heading"><div class="section-title">All patients <span id="table-count" class="count-tag">0</span></div><span class="units-note">Glucose &amp; cholesterol: mg/dL <span>Haemoglobin: g/dL</span></span></div>
+        <div class="table-toolbar"><label class="search-box"><i data-lucide="search"></i><input id="search" type="search" placeholder="Search name or email" aria-label="Search patients"></label><div class="toolbar-right"><label class="filter-label"><i data-lucide="sliders-horizontal"></i><select id="risk-filter" aria-label="Filter by screening result"><option value="all">All results</option><option value="review">Review suggested</option><option value="context">Context needed</option><option value="ai">AI completed</option></select></label><button class="icon-button" id="refresh" title="Refresh records" aria-label="Refresh records"><i data-lucide="refresh-cw"></i></button></div></div>
+        <div class="table-container"><table class="patient-table"><thead><tr><th>Patient</th><th>Date of birth</th><th>Glucose <small>mg/dL</small></th><th>Haemoglobin <small>g/dL</small></th><th>Cholesterol <small>mg/dL</small></th><th>Remarks</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody id="patient-rows"></tbody></table><div id="empty-state" class="empty-state" hidden><span class="empty-icon"><i data-lucide="clipboard-plus"></i></span><h2>No patient records yet</h2><p>No records have been added to this workspace.</p><button class="button secondary" id="empty-add"><i data-lucide="plus"></i>Add patient</button></div><div id="no-results" class="empty-state" hidden><i data-lucide="search-x"></i><h2>No matching records</h2><button class="button secondary" id="clear-filters">Clear filters</button></div><div id="load-error" class="inline-error" role="alert" hidden></div></div>
+        <div class="table-footer"><span id="showing-count">Loading records...</span><span><i data-lucide="database"></i>SQLite persistent storage</span></div>
+        <aside class="clinical-note"><i data-lucide="info"></i><p><strong>Screening, not a diagnosis.</strong> Results need clinical context. Fasting status, age, sex, pregnancy and laboratory ranges can change interpretation. Consult a qualified clinician.</p></aside>
+      </section>
+
+      <section id="assessment-view" hidden>
+        <div class="page-heading"><div><div class="eyebrow"><span class="status-dot"></span>EVALUATION WORKSPACE</div><h1>Assessment cases<span class="heading-dot">.</span></h1><p class="page-subtitle">Source records and validation outcomes</p></div></div>
+        <div class="notice warning"><i data-lucide="file-warning"></i><div><strong>Source-table verification required</strong><p id="mapping-notice"></p></div></div>
+        <div class="assessment-controls"><label class="checkbox-label"><input id="mapping-confirmed" type="checkbox"><span>I compared every reconstructed row and the assumed units with the original assessment document.</span></label><label class="checkbox-label"><input id="assessment-consent" type="checkbox"><span>I have permission to send de-identified measurements and age to OpenAI.</span></label><button class="button primary" id="run-assessment" disabled><i data-lucide="play"></i>Validate &amp; import</button></div>
+        <div id="assessment-summary" role="status" class="assessment-summary" hidden></div>
+        <div class="table-container"><table class="assessment-table"><thead><tr><th>Test</th><th>Full name</th><th>Source DOB</th><th>Email</th><th>Glucose</th><th>Hb</th><th>Cholesterol</th><th>Outcome</th></tr></thead><tbody id="assessment-rows"></tbody></table></div>
+        <p class="assessment-footnote">Dotted source dates are preserved here. Import changes separators to dd/mm/yyyy only. Invalid records are not saved. Repeating an import skips existing assessment entries; ordinary patient records are unaffected.</p>
+      </section>
+    </main>
+    <footer class="app-footer"><span>VITAL LEDGER</span><span>Patient data stays local. External AI is opt-in.</span></footer>
+  </div>
+
+  <dialog id="patient-dialog" class="drawer" aria-labelledby="form-title"><form id="patient-form" novalidate><div class="dialog-header"><div><div class="eyebrow">PATIENT RECORD</div><h2 id="form-title">Add patient</h2></div><button class="icon-button" type="button" data-close="patient-dialog" aria-label="Close patient form" title="Close"><i data-lucide="x"></i></button></div><div class="dialog-content"><div class="form-section-title"><i data-lucide="user-round"></i>Patient details</div><div class="field"><label for="full_name">Full name</label><input id="full_name" name="full_name" autocomplete="name" maxlength="120" required><span class="field-error" id="error-full_name"></span></div><div class="field"><label for="date_of_birth">Date of birth</label><input id="date_of_birth" name="date_of_birth" placeholder="dd/mm/yyyy" inputmode="numeric" maxlength="10" required aria-describedby="error-date_of_birth"><span class="field-error" id="error-date_of_birth"></span></div><div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required aria-describedby="error-email"><span class="field-error" id="error-email"></span></div><div class="form-section-title blood-title"><i data-lucide="droplets"></i>Blood test results</div><div class="blood-fields"><div class="field"><label for="glucose">Glucose</label><div class="unit-input"><input id="glucose" name="glucose" type="number" step="any" min="0.01" max="2000" required><span>mg/dL</span></div><span class="field-error" id="error-glucose"></span></div><div class="field"><label for="haemoglobin">Haemoglobin</label><div class="unit-input"><input id="haemoglobin" name="haemoglobin" type="number" step="any" min="0.01" max="30" required><span>g/dL</span></div><span class="field-error" id="error-haemoglobin"></span></div><div class="field"><label for="cholesterol">Cholesterol</label><div class="unit-input"><input id="cholesterol" name="cholesterol" type="number" step="any" min="0.01" max="2000" required><span>mg/dL</span></div><span class="field-error" id="error-cholesterol"></span></div></div><div class="consent-section"><div class="form-section-title"><i data-lucide="sparkles"></i>External AI screening</div><p id="form-ai-status" class="muted"></p><label class="checkbox-label"><input id="ai_consent" name="ai_consent" type="checkbox"><span>I have permission to send blood values and age to OpenAI for educational screening. Name, email and exact birth date are not sent.</span></label></div><div id="form-errors" class="inline-error" role="alert" hidden></div></div><div class="dialog-footer"><span id="save-note"><i data-lucide="shield-check"></i>Saved on this server</span><button class="button secondary" type="button" data-close="patient-dialog">Cancel</button><button id="save-patient" class="button primary" type="submit"><i data-lucide="check"></i>Save patient</button></div></form></dialog>
+
+  <dialog id="detail-dialog" class="detail-dialog" aria-labelledby="detail-name"><div class="dialog-header"><div><div class="eyebrow">PATIENT OVERVIEW</div><h2 id="detail-name"></h2></div><button class="icon-button" data-close="detail-dialog" title="Close" aria-label="Close patient details"><i data-lucide="x"></i></button></div><div class="dialog-content" id="detail-content"></div><div class="dialog-footer"><button id="retry-ai" class="button secondary"><i data-lucide="refresh-cw"></i>Retry AI</button><button id="detail-edit" class="button primary"><i data-lucide="pencil"></i>Edit record</button></div></dialog>
+
+  <dialog id="delete-dialog" class="confirm-dialog" aria-labelledby="delete-title"><div class="dialog-content"><span class="delete-symbol"><i data-lucide="trash-2"></i></span><h2 id="delete-title">Delete patient record?</h2><p id="delete-description"></p><p class="muted">This permanently removes the record and its remarks from this workspace.</p><div id="delete-error" class="inline-error" role="alert" hidden></div></div><div class="dialog-footer"><button class="button secondary" data-close="delete-dialog">Cancel</button><button id="confirm-delete" class="button danger"><i data-lucide="trash-2"></i>Delete record</button></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
